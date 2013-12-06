@@ -6,14 +6,20 @@ New static methods:
     * This method performs formatting if a format specifier is given, e.g.
         Matrix.fromTransformString("scale({x}, {y})", el.getBBox())
 
+New class: Snap.BBox
+  new Snap.BBox(obj)
+    * Converts the output of getBBox() into an object with methods
+  Snap.BBox.keypoint(name)
+    * Converts a keypoint name ('topleft', 'topright', 'bottomleft', 'bottomright',
+      'center') into an object with x/y fields, relative to the BBox
+
 New member methods:
-  Element.addTransform(t)
+  Element.addTransform(t, [center])
     * Applies a transformation to an element, *on top of the existing one*
     * t can by an SVG transform string, or a Matrix
-  Element.addTransformCentered(tString, [center='topleft'])
-    * Applies a transformation relative to a given center (useful for scaling)
     * center may be 'topleft', 'topright', 'bottomleft', 'bottomright', 'center',
       or an object with fields x/y representing coordinates in the local geometry
+    * If center is specified, the transform is performed relative to that point
   Element.dynamicSize(subelement, width, height)
     * Applied to a group element
     * Resize the subelement to have a given width/height, and reflow the rest of
@@ -55,6 +61,44 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
       return all;
     });
     return res;
+    //end copied
+  }
+
+  Snap.BBox = function (obj) {
+    for(var key in obj) {
+        this[key] = obj[key];
+    }
+  }
+
+  Snap.BBox.prototype.keypoint = function(name) {
+    if (!is(name, 'string')) {
+      return name;
+    }
+
+    var x, y;
+    switch(name) {
+      case 'topleft':
+        x = this.x;
+        y = this.y;
+        break;
+      case 'topright':
+        x = this.x2;
+        y = this.y;
+        break;
+      case 'bottomleft':
+        x = this.x;
+        y = this.y2;
+        break;
+      case 'bottomright':
+        x = this.x2;
+        y = this.y2;
+        break;
+      case 'center':
+        x = (this.x + this.x2) / 2;
+        y = (this.y + this.y2) / 2;
+        break;
+    }
+    return {x:x, y:y};
   }
 
   Snap.Matrix.fromTransformString = function(tString, format) {
@@ -70,65 +114,29 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
       });
   }
 
-  elproto.addTransform = function (t) {
+  elproto.addTransform = function (t, center) {
     // Apply a transform to an element, on top of the transform it already has
-    var mtx = this.transform().localMatrix;
+    // Optionally center the transform around a particular feature of the bounding box
     if (is(t, "string")) {
-      t = Snap.Matrix.fromTransformString(t);
-    }
-    this.transform(mtx.add(t));
-  }
-
-  elproto.addTransformCentered = function (tString, center) {
-    // Apply a transform to an element, on top of the transform it already has
-    // Center the transform around a particular feature of the bounding box
-    var c, x, y;
-    if (arguments.length > 1) {
-      c = center;
-    } else {
-      c = 'topleft';
+      t = Snap.Matrix.fromTransformString(tString);
     }
 
-    if (is(c, 'string')) {
-      switch(c) {
-      case 'topleft':
-        x = this.getBBox().x;
-        y = this.getBBox().y;
-        break;
-      case 'topright':
-        x = this.getBBox().x2;
-        y = this.getBBox().y;
-        break;
-      case 'bottomleft':
-        x = this.getBBox().x;
-        y = this.getBBox().y2;
-        break;
-      case 'bottomright':
-        x = this.getBBox().x2;
-        y = this.getBBox().y2;
-        break;
-      case 'center':
-        x = (this.getBBox().x + this.getBBox().x2) / 2;
-        y = (this.getBBox().y + this.getBBox().y2) / 2;
-        break;
-      }
-    } else {
-      x = c.x;
-      y = c.y;
+    if (arguments.length < 2) {
+      return this.transform(this.transform().localMatrix.add(t))
     }
 
-    var pos = Snap.Matrix.fromTransformString("translate({x}, {y})", {x:x, y:y});
-    var mtx2 = Snap.Matrix.fromTransformString(tString);
-    var neg = Snap.Matrix.fromTransformString("translate({x}, {y})", {x:-x, y:-y});
+    var bbox = new Snap.BBox(this.getBBox());
+    center = bbox.keypoint(center);
 
-    this.addTransform(pos);
-    this.addTransform(mtx2);
-    this.addTransform(neg);
+    return this.addTransform((new Snap.Matrix())
+                      .translate(center.x, center.y)
+                      .add(t)
+                      .translate(-center.x, -center.y));
   }
 
   elproto.dynamicSize = function(subelement, width, height, exception) {
     // Dynamically scale subelement to have width/height
-    if (typeof subelement === "string") {
+    if (is(subelement, "string")) {
       subelement = this.select(subelement);
     }
     if (arguments.length > 3) {
@@ -137,31 +145,17 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
       exception = [];
     }
 
-    var thresh_x = subelement.getBBox().x;
-    var thresh_y = subelement.getBBox().y;
+    var thresh_x = subelement.getBBox().x,
+        thresh_y = subelement.getBBox().y,
+        old_width = subelement.getBBox().width,
+        old_height = subelement.getBBox().height,
+        translation_x = (new Snap.Matrix()).translate(width - old_width, 0),
+        translation_y = (new Snap.Matrix()).translate(0, height - old_height);
 
-    var old_width = subelement.getBBox().width;
-    var old_height = subelement.getBBox().height;
-
-    subelement.addTransformCentered(Snap.format("scale({kx}, {ky})",
-                                        {
-                                          kx : width / old_width,
-                                          ky : height / old_height
-                                        }), 'topleft');
-
-    var translation_x = Snap.format("translate({x}, {y})",
-                                    {
-                                      x: width - old_width,
-                                      y: 0
-                                    });
-    var translation_y = Snap.format("translate({x}, {y})",
-                                    {
-                                      x: 0,
-                                      y: height - old_height
-                                    });
+    subelement.addTransform((new Snap.Matrix()).scale(width / old_width, height / old_height), 'topleft');
 
     this.selectAll("*").forEach(function(element) {
-      if (element.type === "tspan") return;
+      if (element.type === "tspan") return; // TODO(nikita): why do tspans cause bugs in Snap.svg?
       if (exception.length > 0) {
         var skip = false;
         exception.forEach(function(ex) {
@@ -173,11 +167,12 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
       }
 
       if(element.getBBox().x > thresh_x) {
-        element.addTransformCentered(translation_x, 'topleft');
+        element.addTransform(translation_x, 'topleft');
       }
       if(element.getBBox().y > thresh_y) {
-        element.addTransformCentered(translation_y, 'topleft');
+        element.addTransform(translation_y, 'topleft');
       }
     });
+    return this;
   }
 });
