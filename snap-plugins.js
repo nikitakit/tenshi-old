@@ -118,7 +118,7 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
     // Apply a transform to an element, on top of the transform it already has
     // Optionally center the transform around a particular feature of the bounding box
     if (is(t, "string")) {
-      t = Snap.Matrix.fromTransformString(tString);
+      t = Snap.Matrix.fromTransformString(t);
     }
 
     if (arguments.length < 2) {
