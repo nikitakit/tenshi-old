@@ -1,0 +1,71 @@
+<!doctype html>
+
+<html>
+    <head>
+        <title>Playground</title>
+        <script src="libraries/jquery-2.0.3.js"></script>
+        <script src="libraries/snapsvg/snap.svg.js"></script>
+        <script src="snap-plugins.js"></script>
+
+        <script src="main.js"></script>
+        <!-- LightTable connection -->
+        <script type='text/javascript' id='lt_ws' src='http://localhost:41538/socket.io/lighttable/ws.js'></script>
+
+        <style type="text/css">
+            body {
+                margin: 0 0 0 0;
+            }
+
+            #header {
+                padding: 8px 8px 8px 8px;
+                height:50px;
+                width: 1000px;
+                background-color: rgb(110, 136, 252);
+            }
+
+            #back {
+                position: relative;
+                display: inline-block;
+                float: left;
+                left: 0px;
+            }
+
+            #title {
+                display: inline-block;
+                width: calc(100% - 100px);
+                text-align: center;
+            }
+
+            #forward {
+                position: relative;
+                display: inline-block;
+                float: right;
+            }
+
+            #main {
+                padding: 8px 8px 8px 8px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="header">
+            <div id="back">
+                <p>
+                    <a id="bck" href="#"> < </a>
+                </p>
+            </div>
+            <div id="title">
+                <p id="titletext">
+                Playground
+                </p>
+            </div>
+            <div id="forward">
+                <p>
+                    <a id="fwd" href="#"> > </a>
+                </p>
+            </div>
+        </div>
+        <div id="main">
+        </div>
+    </body>
+</html>
