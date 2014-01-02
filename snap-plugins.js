@@ -26,6 +26,9 @@ New member methods:
       the group intelligently
     * subelement may be an Element, or a selector
     * If subelement is a selector, it should return a single object only
+  Element.getSmartBBox(isWithoutTransform)
+    * Gets the bounding box, as a Snap.BBox object
+    * Does not cache the bbox size
 */
 
 
@@ -101,6 +104,14 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
     return {x:x, y:y};
   }
 
+
+  elproto.getSmartBBox = function(isWithoutTransform) {
+    this._.dirty = 1; // HACK. Snap never (!) sets the dirty flag except when
+                      // the wrapper element is created
+    // TODO(nikita): revisit this
+    return new Snap.BBox(this.getBBox(isWithoutTransform));
+  }
+
   Snap.Matrix.fromTransformString = function(tString, format) {
     // Create a matrix from an SVG transform string (optionally formatting it)
     if (arguments.length > 1) {
@@ -125,7 +136,7 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
       return this.transform(this.transform().localMatrix.add(t))
     }
 
-    var bbox = new Snap.BBox(this.getBBox());
+    var bbox = this.getSmartBBox();
     center = bbox.keypoint(center);
 
     return this.addTransform((new Snap.Matrix())
@@ -145,10 +156,10 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
       exception = [];
     }
 
-    var thresh_x = subelement.getBBox().x,
-        thresh_y = subelement.getBBox().y,
-        old_width = subelement.getBBox().width,
-        old_height = subelement.getBBox().height,
+    var thresh_x = subelement.getSmartBBox().x + 1,
+        thresh_y = subelement.getSmartBBox().y + 1,
+        old_width = subelement.getSmartBBox().width,
+        old_height = subelement.getSmartBBox().height,
         translation_x = (new Snap.Matrix()).translate(width - old_width, 0),
         translation_y = (new Snap.Matrix()).translate(0, height - old_height);
 
@@ -166,10 +177,10 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
         }
       }
 
-      if(element.getBBox().x > thresh_x) {
+      if(element.getSmartBBox().x > thresh_x) {
         element.addTransform(translation_x, 'topleft');
       }
-      if(element.getBBox().y > thresh_y) {
+      if(element.getSmartBBox().y > thresh_y) {
         element.addTransform(translation_y, 'topleft');
       }
     });
