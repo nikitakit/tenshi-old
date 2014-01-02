@@ -46,5 +46,5 @@ $(function() {
 
     // Add an initial (empty) workarea, and load initial scene
     $("#main").append(workarea);
-    load_scene(0);
+    load_scene(current);
 });
