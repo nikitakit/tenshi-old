@@ -11,7 +11,7 @@ function clickHandler() {
   input.val(this.select("text").attr("text"));
   this.unclick(clickHandler);
   this.select("text").attr("display", "none");
-  input.change(changeText);
+  input.change(changeText).focusout(changeText);
   input.focus().select();
 }
 
