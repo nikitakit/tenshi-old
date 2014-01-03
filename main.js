@@ -13,6 +13,10 @@ $(function() {
         {
             script: "02_dragdrop.js",
             title: "Drag and Drop"
+        },
+        {
+            script: "03_textedit.js",
+            title: "Text editing"
         }
     ];
 
