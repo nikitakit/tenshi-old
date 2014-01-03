@@ -9,6 +9,10 @@ $(function() {
         {
             script: "01_dynamicsize.js",
             title: "Text resizing inside blocks"
+        },
+        {
+            script: "02_dragdrop.js",
+            title: "Drag and Drop"
         }
     ];
 
