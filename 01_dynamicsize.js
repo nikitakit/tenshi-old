@@ -26,8 +26,9 @@ Snap.load("assets/scaling.svg", function(f) {
 
   // Add an input area to modify the text
   var emb = s.createEmbeddedHTML("50%", "10px", "50%", "30px");
-  emb.html.append("<form accept-charset='utf-8'>Text: <input value='text'></input> <button>Change</button></form>");
+  emb.html.append("<form accept-charset='utf-8'> Block Text: <input id='resizeupdatetext' value='text'></input></form>");
 
-  $("form").submit(updateText);
+  // Event handler to change the text inside the block
+  $("#resizeupdatetext").change(updateText);
   updateText();
 });
