@@ -29,6 +29,7 @@ Snap.load("assets/scaling.svg", function(f) {
   emb.html.append("<form accept-charset='utf-8'> Block Text: <input id='resizeupdatetext' value='text'></input></form>");
 
   // Event handler to change the text inside the block
+  $("#resizeupdatetext").keyup(updateText);
   $("#resizeupdatetext").change(updateText);
   updateText();
 });
