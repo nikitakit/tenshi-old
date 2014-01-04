@@ -5,6 +5,8 @@ Require jQuery to be loaded.
 New member methods:
   Element.createEmbeddedHtml(x, y, width, height)
     * Creates an HTML fragment embedded into the SVG
+    * If the element is a group, the HTML fragment is embedded inside it.
+      Otherwise, it appears immediately afterwards in the enclosing group.
     * Returns: {
                 svg: Snap object representing the foreignObject
                 html: jQuery object representing the HTML root div
@@ -35,7 +37,11 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
       'svg': Snap(obj.children()[0]),
       'html': $(obj.children()[0].children[0])
     };
-    this.node.appendChild(res.svg.node);
+    if (this.type === "g") {
+      this.node.appendChild(res.svg.node);
+    } else {
+      this.after(res.svg.node);
+    }
     return res;
   };
 });

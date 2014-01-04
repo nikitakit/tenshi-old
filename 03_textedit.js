@@ -4,27 +4,44 @@ Snap.load("assets/03_textedit.svg", function(f) {
   s.append(f);
 });
 
-function clickHandler() {
-  var emb = this.createEmbeddedHTML("40", "38", "100%", "100%");
-  emb.html.append("<input value=''></input>");
-  var input = emb.html.children("input");
-  input.val(this.select("text").attr("text"));
-  this.unclick(clickHandler);
-  this.select("text").attr("display", "none");
-  input.change(changeText).focusout(changeText);
-  input.focus().select();
-}
+function makeEditable(element, selector) {
+  // makeEditable(element, [selector])
+  //   * makes a <text/> element inside an SVG editable
+  //   * element is the object that responds to click events for editing
+  //   * if element is not itself the text element, use the selector to specify
+  //     the text element
+  var textelement = selector ? element.select(selector) : element,
+      emb,
+      input;
+  function startEditing() {
+    // Create an HTML input element
+    emb = element.createEmbeddedHTML("40", "38", "100%", "100%");
+    emb.html.append("<input value=''></input>");
+    input = emb.html.children("input");
 
-function changeText() {
-  var foreignobject = Snap($(this).parents("foreignObject")[0]);
-  foreignobject.parent().select("text").attr({
-    display: "inherit",
-    text: $(this).val()
-  });
-  foreignobject.parent().click(clickHandler);
-  foreignobject.remove();
-}
+    // Update values and views
+    input.val(textelement.attr("text"));
+    textelement.attr("display", "none");
 
+    // Update event handlers
+    element.unclick(startEditing);
+    input.change(endEditing).focusout(endEditing);
+
+    // Give focus to the input element
+    input.focus().select();
+  }
+
+  function endEditing() {
+    textelement.attr({
+      display: "inherit",
+      text: input.val()
+    });
+    element.click(startEditing);
+    emb.svg.remove();
+  }
+
+  element.click(startEditing);
+}
 
 Snap.load("assets/scaling.svg", function(f) {
   s.append(f.select("#block"));
@@ -37,5 +54,5 @@ Snap.load("assets/scaling.svg", function(f) {
                   obj.select("text").getSmartBBox().height,
                   "text");
 
-  obj.click(clickHandler);
+  makeEditable(obj, "text");
 });
