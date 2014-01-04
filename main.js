@@ -17,6 +17,10 @@ $(function() {
         {
             script: "03_textedit.js",
             title: "Text editing"
+        },
+        {
+            script: "04_blockcreation.js",
+            title: "Block creation"
         }
     ];
 
