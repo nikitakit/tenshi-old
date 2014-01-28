@@ -21,6 +21,10 @@ $(function() {
         {
             script: "04_blockcreation.js",
             title: "Block creation"
+        },
+        {
+            script: "05_polygonsize.js",
+            title: "Resizing blocks using polygon elements"
         }
     ];
 

@@ -29,6 +29,12 @@ New member methods:
   Element.getSmartBBox(isWithoutTransform)
     * Gets the bounding box, as a Snap.BBox object
     * Does not cache the bbox size
+  Element.resizeAtPoint(x, y, dx, dy)
+    * Applied to an element or group
+    * Any polygons or rectangles in the group/element are affected by the
+      resizing
+    * Points to the right of (x, y) are shifted by dx
+    * Points to the bottom of (x, y) are shifted by dy
 */
 
 
@@ -143,6 +149,101 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
                       .translate(center.x, center.y)
                       .add(t)
                       .translate(-center.x, -center.y));
+  }
+
+  var mapPoints = (function(){
+    function parsePolygonString(polygonString) {
+      var spaces = "\x09\x0a\x0b\x0c\x0d\x20\xa0\u1680\u180e\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u202f\u205f\u3000\u2028\u2029",
+          separator = "[" + spaces + ",]*",
+          number = "-?\\d*\\.?\\d*(?:e[\\-+]?\\d+)?",
+          tCoordinates = new RegExp(separator + "(" + number + ")"
+                                    + separator + "(" + number + ")" + separator,
+                                    "ig"),
+          points = [];
+      polygonString.replace(tCoordinates,
+                            function(match, p1, p2) {
+                                if (p1 === "") {
+                                  return "";
+                                }
+                                points.push([+p1, +p2]);
+                                return "";
+                            });
+      return points;
+    }
+
+    function polygonMap(polygonString, fn) {
+      var points = parsePolygonString(polygonString),
+          transformed = points.map(fn),
+          output = "";
+      transformed.map(function(el) {
+        output = output + " " + el[0] + "," + el[1];
+      })
+      return output;
+    }
+
+    function mapPoints(el, mapping) {
+      if (el.type === "polygon") {
+        var points = el.attr("points"),
+            mtx = el.transform().globalMatrix.invert(),
+            mtx_inv = mtx.invert(),
+            tpoints;
+        tpoints = polygonMap(points, function(pt) {
+              var x = mtx_inv.x(pt[0], pt[1]),
+                  y = mtx_inv.y(pt[0], pt[1]),
+                  post = mapping(x, y);
+              x = mtx.x(post[0], post[1]);
+              y = mtx.y(post[0], post[1]);
+              return [x, y];
+            });
+        el.attr("points", tpoints)
+      } else if (el.type == "rect") {
+        // TODO(nikita): implement this
+        console.log("Error: mapPoints applied to unsupported element type: " + el.type);
+      } else {
+        // Silently ignore applying this to unsupported element type
+        }
+    }
+
+    return mapPoints;
+  })();
+
+  elproto.resizeAtPoint = function(thresh_x, thresh_y, dx, dy, exception) {
+    if (arguments.length > 4) {
+      exception = this.selectAll(exception);
+    } else {
+      exception = [];
+    }
+
+    var mapping = function (x, y) {
+          if (x > thresh_x) {
+            x += dx;
+          }
+
+          if (y > thresh_y) {
+            y += dy;
+          }
+          return [x, y];
+        };
+
+    this.selectAll("*").forEach(function(element) {
+      if (element.type === "tspan"
+         || element.type === "pattern") {
+        // Skip elements that cause problems, e.g. because they don't have a transformation
+        return;
+      }
+      if (exception.length > 0) {
+        var skip = false;
+        exception.forEach(function(ex) {
+          skip |= (ex === element);
+        });
+        if (skip) {
+          return;
+        }
+      }
+
+      mapPoints(element, mapping);
+    });
+    return this;
   }
 
   elproto.dynamicSize = function(subelement, width, height, exception) {
