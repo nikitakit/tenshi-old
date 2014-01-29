@@ -47,17 +47,24 @@ $(function() {
     }
 
     // Scene switching buttons
-    var current = 0;
+    var current = 0,
+        hash = window.location.hash.slice(1);
+    if (hash >= 0 && hash < scenes.length) {
+        current = hash;
+    }
+
     $("#bck").click(function() {
         if (load_scene(current - 1)) {
             current = current - 1;
         }
+        $("#bck").attr("href", "#" + current);
     });
 
     $("#fwd").click(function() {
         if (load_scene(current + 1)) {
             current = current + 1;
         }
+        $("#fwd").attr("href", "#" + current);
     });
 
     // Add an initial (empty) workarea, and load initial scene
