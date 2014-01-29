@@ -152,6 +152,7 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
   }
 
   var mapPoints = (function(){
+    // Point-mapping code
     function parsePolygonString(polygonString) {
       var spaces = "\x09\x0a\x0b\x0c\x0d\x20\xa0\u1680\u180e\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u202f\u205f\u3000\u2028\u2029",
           separator = "[" + spaces + ",]*",
@@ -184,24 +185,43 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
     function mapPoints(el, mapping) {
       if (el.type === "polygon") {
         var points = el.attr("points"),
-            mtx = el.transform().globalMatrix.invert(),
+            mtx = el.transform().globalMatrix,
             mtx_inv = mtx.invert(),
             tpoints;
         tpoints = polygonMap(points, function(pt) {
-              var x = mtx_inv.x(pt[0], pt[1]),
-                  y = mtx_inv.y(pt[0], pt[1]),
+              var x = mtx.x(pt[0], pt[1]),
+                  y = mtx.y(pt[0], pt[1]),
                   post = mapping(x, y);
-              x = mtx.x(post[0], post[1]);
-              y = mtx.y(post[0], post[1]);
+              x = mtx_inv.x(post[0], post[1]);
+              y = mtx_inv.y(post[0], post[1]);
               return [x, y];
             });
         el.attr("points", tpoints)
       } else if (el.type == "rect") {
-        // TODO(nikita): implement this
-        console.log("Error: mapPoints applied to unsupported element type: " + el.type);
+        var x = +el.attr("x"), // Note the cast to numeric type
+            y = +el.attr("y"),
+            width = +el.attr("width"),
+            height = +el.attr("height"),
+            mtx = el.transform().globalMatrix,
+            mtx_inv = mtx.invert(),
+            x1 = mtx.x(x, y),
+            y1 = mtx.y(x, y),
+            x2 = mtx.x(x + width, y + height),
+            y2 = mtx.y(x + width, y + height),
+            post1 = mapping(x1, y1),
+            post2 = mapping(x2, y2);
+
+        x1 = mtx_inv.x(post1[0], post1[1]),
+        y1 = mtx_inv.y(post1[0], post1[1]),
+        x2 = mtx_inv.x(post2[0], post2[1]),
+        y2 = mtx_inv.y(post2[0], post2[1]);
+        el.attr("x", x1);
+        el.attr("y", y1);
+        el.attr("width", x2 - x1);
+        el.attr("height", y2 - y1);
       } else {
         // Silently ignore applying this to unsupported element type
-        }
+      }
     }
 
     return mapPoints;
