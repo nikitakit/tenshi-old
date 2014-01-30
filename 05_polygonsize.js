@@ -25,6 +25,9 @@ function updateText() {
 }
 
 Snap.load("assets/scaling2.svg", function(f) {
+  s.append(f.select("style"));
+  s.append(f.select("pattern"));
+  s.append(f.select("font"));
   s.append(f.select("#block"));
   var obj = s.select("#block");
   //obj.drag();
