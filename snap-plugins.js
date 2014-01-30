@@ -185,7 +185,7 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
     function mapPoints(el, mapping) {
       if (el.type === "polygon") {
         var points = el.attr("points"),
-            mtx = el.transform().globalMatrix,
+            mtx = el.transform().localMatrix,
             mtx_inv = mtx.invert(),
             tpoints;
         tpoints = polygonMap(points, function(pt) {
@@ -202,7 +202,7 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
             y = +el.attr("y"),
             width = +el.attr("width"),
             height = +el.attr("height"),
-            mtx = el.transform().globalMatrix,
+            mtx = el.transform().localMatrix,
             mtx_inv = mtx.invert(),
             x1 = mtx.x(x, y),
             y1 = mtx.y(x, y),

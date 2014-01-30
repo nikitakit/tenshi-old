@@ -30,7 +30,7 @@ Snap.load("assets/scaling2.svg", function(f) {
   s.append(f.select("font"));
   s.append(f.select("#block"));
   var obj = s.select("#block");
-  //obj.drag();
+  obj.drag();
 
   // Add an input area to modify the text
   var emb = s.createEmbeddedHTML("50%", "10px", "50%", "30px");
