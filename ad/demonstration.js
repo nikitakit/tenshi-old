@@ -10,6 +10,27 @@
       return demo.number * demo.number;
     };
 
+    this.robots = [
+      {
+        name: "AllenBot",
+        description: "Awesome Description"
+      }, 
+      {
+        name: "DougBot",
+        description: "Super Description"
+      },
+    ]
+
   }]);
+
+  app.directive('robot', function () {
+    return {
+      restrict: 'E', 
+      templateUrl: 'robot.html',
+    };
+  }
+
+  );
+
 })();
 $("#front").text("jQuery works!");
