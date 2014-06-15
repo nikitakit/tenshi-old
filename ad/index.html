@@ -1,6 +1,9 @@
 <html lang="en" ng-app="demonstration">
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <script src="vendor/jquery-2.1.1.js"></script>
+    <script src="vendor/angular.js"></script>
+    <script src="demonstration.js"></script>
     <title>Squaring Demonstration</title>
   </head>
   <body ng-controller="demoController as dc">
@@ -9,8 +12,5 @@
     <h1> Input: <input ng-model="dc.number"></input> </h1>
     <h1> Output: {{dc.answer()}}</h1>
     <robot ng-repeat="robot in dc.robots"></robot>
-    <script src="vendor/jquery-2.1.1.js"></script>
-    <script src="vendor/angular.js"></script>
-    <script src="demonstration.js"></script>
   </body>
 </html>
