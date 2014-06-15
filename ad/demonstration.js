@@ -33,4 +33,3 @@
   );
 
 })();
-$("#front").text("jQuery works!");
