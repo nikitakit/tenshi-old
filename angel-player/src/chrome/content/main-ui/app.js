@@ -18,8 +18,8 @@ exports.init = function(_window) {
     exports.module = app;
 
     // yield to the event loop before proceeding
-    _window.setTimeout(function() {
-      require('tenshi/welcome/welcome.js').init(_window);
-    }, 0);
+    // _window.setTimeout(function() {
+    //   require('tenshi/welcome/welcome.js').init(_window);
+    // }, 0);
   });
 }

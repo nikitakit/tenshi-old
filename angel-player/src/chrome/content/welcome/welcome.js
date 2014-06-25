@@ -121,6 +121,6 @@ function onSaveClicked(e) {
 exports.init = function(_window) {
     window = _window;
     document = window.document;
-    $ = require('jquery')(window);
+    $ = window.$;
     $(onLoad);
 };
