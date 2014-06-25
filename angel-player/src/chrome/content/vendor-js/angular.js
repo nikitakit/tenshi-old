@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.3.0-beta.11
+ * @license AngularJS v1.3.0-beta.11-nosce
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  *
@@ -8828,13 +8828,6 @@ function $InterpolateProvider() {
         };
 
         var getValue = function (value) {
-		  // HACK
-          // if (trustedContext) {
-          //   value = $sce.getTrusted(trustedContext, value);
-          // } else {
-          //   value = $sce.valueOf(value);
-          // }
-
           return value;
         };
 
@@ -13299,18 +13292,7 @@ function $SceDelegateProvider() {
       return holderType;
     }
 
-	// HACK
-	/*
 
-    var trustedValueHolderBase = generateHolderType(),
-        byType = {};
-
-    byType[SCE_CONTEXTS.HTML] = generateHolderType(trustedValueHolderBase);
-    byType[SCE_CONTEXTS.CSS] = generateHolderType(trustedValueHolderBase);
-    byType[SCE_CONTEXTS.URL] = generateHolderType(trustedValueHolderBase);
-    byType[SCE_CONTEXTS.JS] = generateHolderType(trustedValueHolderBase);
-    byType[SCE_CONTEXTS.RESOURCE_URL] = generateHolderType(byType[SCE_CONTEXTS.URL]);
-	*/
 
     /**
      * @ngdoc method
@@ -13330,8 +13312,6 @@ function $SceDelegateProvider() {
      * where Angular expects a $sce.trustAs() return value.
      */
     function trustAs(type, trustedValue) {
-	  return trustedValue; // HACK
-	  /*
       var Constructor = (byType.hasOwnProperty(type) ? byType[type] : null);
       if (!Constructor) {
         throw $sceMinErr('icontext',
@@ -13349,7 +13329,6 @@ function $SceDelegateProvider() {
             type);
       }
       return new Constructor(trustedValue);
-	  */
     }
 
     /**
@@ -13371,12 +13350,7 @@ function $SceDelegateProvider() {
      *     `value` unchanged.
      */
     function valueOf(maybeTrusted) {
-	  // HACK
-      // if (maybeTrusted instanceof trustedValueHolderBase) {
-      //   return maybeTrusted.$$unwrapTrustedValue();
-      // } else {
-        return maybeTrusted;
-      // }
+      return maybeTrusted;
     }
 
     /**
@@ -13709,7 +13683,7 @@ function $SceDelegateProvider() {
 /* jshint maxlen: 100 */
 
 function $SceProvider() {
-  var enabled = false; // HACK
+  var enabled = false; // PERMANENTLY DISABLE SCE
 
   /**
    * @ngdoc method
@@ -13723,13 +13697,7 @@ function $SceProvider() {
    * Enables/disables SCE and returns the current value.
    */
   this.enabled = function (value) {
-	// HACK
-	enabled = false;
-	return false;
-    // if (arguments.length) {
-    //   enabled = !!value;
-    // }
-    // return enabled;
+    return false; // PERMANENTLY DISABLE SCE
   };
 
 
@@ -13806,13 +13774,11 @@ function $SceProvider() {
     sce.isEnabled = function () {
       return enabled;
     };
-    // sce.trustAs = $sceDelegate.trustAs;
-    // sce.getTrusted = $sceDelegate.getTrusted;
-    // sce.valueOf = $sceDelegate.valueOf;
+    sce.trustAs = $sceDelegate.trustAs;
+    sce.getTrusted = $sceDelegate.getTrusted;
 
     if (!enabled) {
       sce.trustAs = sce.getTrusted = function(type, value) { return value; };
-      // sce.valueOf = identity;
     }
 
     /**
