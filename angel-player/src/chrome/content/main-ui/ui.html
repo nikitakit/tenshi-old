@@ -6,8 +6,11 @@
         <script type='application/javascript;version=1.7'
             src='resource://gre/modules/commonjs/toolkit/loader.js'></script>
         <script src="../common/require_stub.js"></script>
+		<script src="../vendor-js/angular.js"></script>
+		<script src="../vendor-js/jquery.js"></script>
         <script>
             requireStub('tenshi/main-ui/ui.js');
+            requireStub('tenshi/main-ui/app.js');
         </script>
     </head>
     <body>
@@ -26,6 +29,17 @@
           </div>
         </div>
         <div id="mainContent">
+            <div id="new-style-modules">
+              <!-- TODO: change the visibility of these divs based on angular variable -->
+                <div ng-include="'chrome://angel-player/content/welcome/welcome.html'"></div>
+                <!-- <div ng-include="'chrome://angel-player/content/controls/main.html'"></div> -->
+                <!-- <div ng-include="'chrome://angel-player/content/texteditor/editor.html'"></div> -->
+                <!-- <div ng-include="'chrome://angel-player/content/console/console.html'"></div> -->
+                <!-- <div ng-include="'chrome://angel-player/content/blockeditor/blockeditor.html"'></div> -->
+                <!-- <div ng-include="'chrome://angel-player/content/simulator/main.html'"></div> -->
+                <!-- <div ng-include="'chrome://angel-player/content/simulator/maker.html'"></div> -->
+            </div>
+
             <div id="topDiv"><!--Loaded dynamically--></div>
             <div id="mainCenter">
                 <div id="leftDiv"><!--Loaded dynamically--></div>
